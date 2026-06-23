@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GradeX | GCSE Maths Tutor Certification</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700;9..144,800&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --navy: #0B1530;
+    --navy-soft: #16213F;
+    --orange: #FF6A00;
+    --orange-tint: #FFF1E6;
+    --blue: #1557D6;
+    --blue-tint: #EAF1FF;
+    --yellow: #FFC700;
+    --yellow-tint: #FFF8DE;
+    --gray: #F5F7FA;
+    --white: #FFFFFF;
+    --border: #E4E9F2;
+    --text: #1E2433;
+    --slate: #66708A;
+    --muted: #9AA4BC;
+    --good: #16A34A;
+    --good-tint: #EDFBF2;
+    --bad: #DC2626;
+    --bad-tint: #FEF0F0;
+    --header-h: 64px;
+    --sidebar-w: 272px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: var(--gray);
+    color: var(--text);
+    font-size: 14.5px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, .display {
+    font-family: 'Fraunces', serif;
+    color: var(--navy);
+  }
+  a { color: var(--blue); }
+  button { font-family: 'Manrope', sans-serif; cursor: pointer; }
+  ::selection { background: var(--yellow); color: var(--navy); }
+
+  /* =========================== APP SHELL =========================== */
+  #app { min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ---- HEADER ---- */
+  .app-header {
+    height: var(--header-h);
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-logo {
+    height: 52px;
+    width: auto;
+    max-width: 280px;
+    object-fit: contain;
+    flex-shrink: 0;
+    display: block;
+    border-radius: 10px;
+    background: transparent;
+    padding: 0;
+  }
+  .header-divider { width: 1px; height: 26px; background: rgba(255,255,255,0.15); }
+  .header-title { font-size: 12.5px; color: rgba(255,255,255,0.65); font-weight: 600; letter-spacing: 0.2px; }
+  .header-title strong { color: rgba(255,255,255,0.92); font-weight: 700; }
+
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .header-learner { font-size: 12px; color: rgba(255,255,255,0.6); text-align: right; }
+  .header-learner strong { color: white; display: block; font-size: 13px; font-weight: 700; }
+  .progress-ring {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: conic-gradient(var(--orange) calc(var(--pct, 0) * 1%), rgba(255,255,255,0.14) 0);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .progress-ring-inner {
+    width: 37px; height: 37px;
+    border-radius: 50%;
+    background: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10.5px; font-weight: 800; color: white;
+  }
+
+  /* ---- LAYOUT ---- */
+  .app-body { display: flex; flex: 1; min-height: calc(100vh - var(--header-h)); }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100vh - var(--header-h));
+  }
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 18px 14px; }
+  .sidebar-section-label {
+    font-size: 10.5px; font-weight: 800; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 8px 10px 10px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 12px;
+    border-radius: 10px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    border: 1px solid transparent;
+  }
+  .nav-item:hover:not(.locked) { background: var(--gray); }
+  .nav-item.active { background: var(--orange-tint); border-color: #FFD9B8; }
+  .nav-item.active .nav-label { color: var(--orange); font-weight: 700; }
+  .nav-item.locked { opacity: 0.45; cursor: not-allowed; }
+  .nav-badge {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800;
+    flex-shrink: 0;
+    background: var(--gray); color: var(--slate);
+    border: 1.5px solid var(--border);
+  }
+  .nav-item.complete .nav-badge { background: var(--good); border-color: var(--good); color: white; }
+  .nav-item.active .nav-badge { background: var(--orange); border-color: var(--orange); color: white; }
+  .nav-item.locked .nav-badge { background: var(--gray); color: var(--muted); }
+  .nav-label { font-size: 13px; font-weight: 600; color: var(--text); }
+  .nav-sub { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+  .nav-lock-icon { margin-left: auto; font-size: 12px; color: var(--muted); }
+
+  .sidebar-footer {
+    padding: 16px 18px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sidebar-footer-text { font-size: 10.5px; color: var(--muted); }
+  .sidebar-footer-brand { font-weight: 800; }
+  .sidebar-footer-brand .tp-trida { color: var(--navy); }
+  .sidebar-footer-brand .tp-pro { color: var(--yellow); -webkit-text-stroke: 0.3px var(--navy); }
+  .sidebar-footer-logo {
+    height: 32px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* ---- MAIN CONTENT ---- */
+  .main-content { flex: 1; min-width: 0; padding: 36px 44px 80px; max-width: 980px; }
+  .screen { display: none; animation: fadeIn 0.25s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* =========================== SHARED COMPONENTS =========================== */
+  .module-header { margin-bottom: 28px; }
+  .module-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 10.5px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--orange); background: var(--orange-tint);
+    padding: 5px 14px; border-radius: 20px; margin-bottom: 14px;
+    border: 1px solid #FFD9B8;
+  }
+  .module-header h2 { font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 10px; }
+  .module-header p { color: var(--slate); font-size: 15px; max-width: 680px; }
+  .module-divider { border: none; height: 3px; background: linear-gradient(to right, var(--orange), transparent); margin: 22px 0 32px; border-radius: 2px; }
+
+  .card {
+    background: var(--white); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px; margin-bottom: 18px;
+  }
+  .card-title {
+    font-weight: 700; font-size: 14.5px; color: var(--navy);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .icon-orange { background: var(--orange-tint); }
+  .icon-blue { background: var(--blue-tint); }
+  .icon-yellow { background: var(--yellow-tint); }
+  .icon-good { background: var(--good-tint); }
+  .icon-bad { background: var(--bad-tint); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+
+  .data-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 18px; }
+  .data-table thead tr { background: var(--navy); }
+  .data-table thead th { padding: 11px 15px; text-align: left; font-size: 10.5px; font-weight: 800; color: rgba(255,255,255,0.92); letter-spacing: 0.5px; text-transform: uppercase; }
+  .data-table tbody tr { border-bottom: 1px solid var(--border); }
+  .data-table tbody tr:last-child { border-bottom: none; }
+  .data-table tbody tr:nth-child(even) { background: #FAFBFD; }
+  .data-table tbody td { padding: 10px 15px; font-size: 12.5px; vertical-align: top; }
+  .data-table .col-head { font-weight: 700; color: var(--navy); background: #F1F4F9; }
+
+  .compare-table { width: 100%; border-collapse: collapse; margin-bottom: 18px; background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  .compare-table thead th { padding: 13px 17px; text-align: center; font-size: 12.5px; font-weight: 700; }
+  .compare-table thead th:first-child { background: #FAFBFD; color: var(--slate); }
+  .compare-table thead th:nth-child(2) { background: var(--orange-tint); color: #B8470A; }
+  .compare-table thead th:nth-child(3) { background: var(--blue-tint); color: var(--blue); }
+  .compare-table tbody tr { border-bottom: 1px solid var(--border); }
+  .compare-table tbody tr:last-child { border-bottom: none; }
+  .compare-table tbody td { padding: 11px 17px; font-size: 12.5px; vertical-align: top; }
+  .compare-table tbody td:first-child { font-weight: 700; color: var(--navy); background: #FAFBFD; }
+  .compare-table tbody td:nth-child(2) { background: #FFFAF5; }
+  .compare-table tbody td:nth-child(3) { background: #F7FAFF; }
+
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 10.5px; font-weight: 700; }
+  .badge-orange { background: var(--orange-tint); color: #B8470A; }
+  .badge-blue { background: var(--blue-tint); color: var(--blue); }
+  .badge-yellow { background: var(--yellow-tint); color: #8A6500; }
+  .badge-good { background: var(--good-tint); color: #0E7A37; }
+  .badge-bad { background: var(--bad-tint); color: #A91E1E; }
+  .badge-navy { background: #E8EBF3; color: var(--navy); }
+
+  .callout { border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; border-left: 4px solid; }
+  .callout-orange { background: var(--orange-tint); border-color: var(--orange); }
+  .callout-blue { background: var(--blue-tint); border-color: var(--blue); }
+  .callout-yellow { background: var(--yellow-tint); border-color: var(--yellow); }
+  .callout-bad { background: var(--bad-tint); border-color: var(--bad); }
+  .callout-good { background: var(--good-tint); border-color: var(--good); }
+  .callout-title { font-weight: 800; font-size: 12.5px; margin-bottom: 6px; }
+  .callout-orange .callout-title { color: #B8470A; }
+  .callout-blue .callout-title { color: var(--blue); }
+  .callout-yellow .callout-title { color: #8A6500; }
+  .callout-bad .callout-title { color: #A91E1E; }
+  .callout-good .callout-title { color: #0E7A37; }
+  .callout p, .callout li { font-size: 12.5px; color: var(--text); }
+  .callout ul { padding-left: 18px; }
+  .callout li { margin-bottom: 4px; }
+
+  .step-flow { display: flex; gap: 0; margin-bottom: 22px; flex-wrap: wrap; }
+  .step-item { flex: 1; min-width: 125px; background: var(--white); border: 1px solid var(--border); padding: 15px 13px; text-align: center; position: relative; }
+  .step-item:first-child { border-radius: 12px 0 0 12px; }
+  .step-item:last-child { border-radius: 0 12px 12px 0; }
+  .step-item::after { content: '→'; position: absolute; right: -11px; top: 50%; transform: translateY(-50%); color: var(--orange); font-size: 15px; z-index: 1; background: var(--gray); width: 20px; font-weight: 700; }
+  .step-item:last-child::after { display: none; }
+  .step-num { width: 27px; height: 27px; background: var(--navy); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 800; margin: 0 auto 7px; }
+  .step-label { font-size: 11.5px; font-weight: 700; color: var(--navy); }
+  .step-sub { font-size: 10.5px; color: var(--slate); margin-top: 3px; }
+
+  .dialogue { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 18px; }
+  .dialogue-title { font-size: 12.5px; font-weight: 800; color: var(--navy); margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .chat-msg { display: flex; gap: 11px; margin-bottom: 13px; align-items: flex-start; }
+  .chat-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; color: white; }
+  .avatar-tutor { background: var(--blue); }
+  .avatar-student { background: var(--orange); }
+  .chat-bubble { flex: 1; padding: 10px 13px; border-radius: 10px; font-size: 12.5px; line-height: 1.55; }
+  .bubble-tutor { background: var(--blue-tint); color: var(--navy); border-bottom-left-radius: 2px; }
+  .bubble-student { background: var(--orange-tint); color: #6B3000; border-bottom-left-radius: 2px; }
+  .chat-role { font-size: 9.5px; font-weight: 800; margin-bottom: 3px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .exam-box { background: var(--white); border: 2px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; }
+  .exam-box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 13px; padding-bottom: 9px; border-bottom: 2px solid var(--border); }
+  .exam-box-title { font-weight: 700; font-size: 12.5px; color: var(--slate); }
+  .exam-marks { background: var(--navy); color: white; padding: 3px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 700; }
+  .exam-q { font-size: 13.5px; color: var(--navy); margin-bottom: 12px; }
+  .exam-marks-scheme { background: #FAFBFD; border: 1px solid var(--border); border-radius: 8px; padding: 12px 15px; margin-top: 12px; }
+  .mark-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 6px; font-size: 11.5px; }
+  .mark-type { background: var(--orange); color: white; padding: 1px 8px; border-radius: 4px; font-size: 9.5px; font-weight: 800; white-space: nowrap; flex-shrink: 0; }
+  .mark-type.acc { background: var(--good); }
+  .mark-desc { color: var(--text); }
+
+  .lesson-map { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 18px; }
+  .lesson-map-header { background: var(--navy); padding: 13px 20px; color: white; font-weight: 700; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+  .lesson-segment { display: flex; align-items: center; padding: 13px 20px; border-bottom: 1px solid var(--border); gap: 15px; }
+  .lesson-segment:last-child { border-bottom: none; }
+  .seg-time { min-width: 68px; font-family: 'Manrope', monospace; font-size: 11px; font-weight: 700; color: var(--orange); }
+  .seg-bar { flex-shrink: 0; height: 8px; border-radius: 4px; }
+  .seg-content { flex: 1; }
+  .seg-title { font-weight: 700; font-size: 12.5px; color: var(--navy); }
+  .seg-desc { font-size: 11.5px; color: var(--slate); margin-top: 2px; }
+
+  .framework { background: linear-gradient(135deg, var(--navy) 0%, #1B2A52 100%); border-radius: 16px; padding: 28px; margin-bottom: 22px; color: white; }
+  .framework-title { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 700; margin-bottom: 6px; }
+  .framework-sub { color: rgba(255,255,255,0.6); font-size: 12.5px; margin-bottom: 22px; }
+  .framework-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
+  .framework-cell { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 15px; }
+  .framework-cell-title { font-weight: 700; font-size: 12.5px; margin-bottom: 6px; color: var(--yellow); }
+  .framework-cell p { font-size: 11.5px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+
+  .misconception { background: var(--bad-tint); border: 1px solid #F8C9C9; border-radius: 10px; padding: 13px 15px; margin-bottom: 10px; }
+  .misconception-q { font-weight: 700; color: #A91E1E; font-size: 12.5px; margin-bottom: 4px; }
+  .misconception-fix { background: var(--good-tint); border: 1px solid #BCEACE; border-radius: 8px; padding: 8px 12px; margin-top: 8px; font-size: 11.5px; color: #0E7A37; }
+
+  .tier-diff { background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 16px; }
+  .tier-diff-row { display: grid; grid-template-columns: 140px 1fr 1fr; border-bottom: 1px solid var(--border); }
+  .tier-diff-row:last-child { border-bottom: none; }
+  .tier-diff-cell { padding: 10px 14px; font-size: 12px; }
+  .tier-diff-cell:first-child { background: #FAFBFD; font-weight: 700; color: var(--navy); border-right: 1px solid var(--border); }
+  .tier-diff-cell:nth-child(2) { border-right: 1px solid var(--border); background: #FFFAF5; }
+  .tier-diff-cell:nth-child(3) { background: #F7FAFF; }
+  .tier-diff-header { background: var(--navy) !important; color: white !important; font-weight: 700 !important; font-size: 11.5px !important; }
+  .tier-diff-header:nth-child(2) { background: #8A3D00 !important; }
+  .tier-diff-header:nth-child(3) { background: var(--blue) !important; }
+
+  .ao-card { border-radius: 12px; padding: 18px; border: 2px solid; }
+  .ao1 { background: var(--blue-tint); border-color: var(--blue); }
+  .ao2 { background: var(--orange-tint); border-color: var(--orange); }
+  .ao3 { background: var(--bad-tint); border-color: var(--bad); }
+  .ao-label { font-size: 22px; font-weight: 900; font-family: 'Fraunces', serif; margin-bottom: 4px; }
+  .ao1 .ao-label { color: var(--blue); }
+  .ao2 .ao-label { color: var(--orange); }
+  .ao3 .ao-label { color: var(--bad); }
+  .ao-name { font-weight: 700; font-size: 12.5px; margin-bottom: 8px; }
+  .ao-pct { font-size: 11.5px; color: var(--slate); margin-bottom: 10px; }
+  .ao-example { background: white; border-radius: 8px; padding: 10px 12px; font-size: 11.5px; color: var(--text); margin-bottom: 6px; }
+  .ao-teach { font-size: 11.5px; color: var(--slate); font-style: italic; margin-top: 8px; }
+
+  .wb-workflow { background: var(--navy); border-radius: 14px; padding: 22px; margin-bottom: 18px; }
+  .wb-workflow-title { color: rgba(255,255,255,0.55); font-size: 10.5px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; font-weight: 700; }
+  .wb-step { margin-bottom: 11px; }
+  .wb-step-label { color: var(--yellow); font-size: 10.5px; font-weight: 700; }
+  .wb-step-content { color: #E2E8F0; font-size: 12.5px; margin-top: 4px; }
+  .wb-step-math { color: #6EE7B7; font-size: 13px; margin-top: 3px; font-family: 'Manrope', monospace; }
+
+  .progress-bar-wrap { margin-bottom: 12px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; color: var(--navy); font-weight: 700; }
+  .progress-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; }
+
+  .traffic-wrap { display: flex; gap: 10px; margin-bottom: 18px; }
+  .traffic-item { flex: 1; border-radius: 12px; padding: 15px; }
+  .traffic-bad { background: var(--bad-tint); border: 1px solid #F8C9C9; }
+  .traffic-yellow { background: var(--yellow-tint); border: 1px solid #FCE9A6; }
+  .traffic-good { background: var(--good-tint); border: 1px solid #BCEACE; }
+  .traffic-label { font-weight: 800; font-size: 12.5px; margin-bottom: 6px; }
+  .traffic-bad .traffic-label { color: #A91E1E; }
+  .traffic-yellow .traffic-label { color: #8A6500; }
+  .traffic-good .traffic-label { color: #0E7A37; }
+
+  .checklist { list-style: none; padding: 0; }
+  .checklist li { padding: 6px 0; font-size: 12.5px; display: flex; align-items: flex-start; gap: 8px; border-bottom: 1px solid #F1F4F9; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before { content: '✓'; width: 17px; height: 17px; background: var(--good); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9.5px; flex-shrink: 0; margin-top: 1px; }
+  .checklist.bad li::before { content: '✕'; background: var(--bad); }
+
+  ul.plain { list-style: none; padding: 0; }
+  ul.plain li { padding: 4px 0; font-size: 12.5px; }
+  ul.plain li::before { content: '▸ '; color: var(--orange); font-weight: 700; }
+  strong { font-weight: 700; color: var(--navy); }
+  h4 { font-size: 14.5px; font-weight: 800; color: var(--navy); margin: 22px 0 11px; }
+  h5 { font-size: 12.5px; font-weight: 800; color: var(--blue); margin: 14px 0 8px; }
+
+  /* =========================== QUIZ COMPONENT =========================== */
+  .quiz-block { background: var(--white); border: 2px solid var(--navy); border-radius: 16px; padding: 26px; margin: 32px 0 12px; }
+  .quiz-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .quiz-header h4 { margin: 0; font-size: 17px; }
+  .quiz-header p { font-size: 12.5px; color: var(--slate); margin-bottom: 18px; }
+  .quiz-q { margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .quiz-q:last-of-type { border-bottom: none; }
+  .quiz-question { font-weight: 700; font-size: 13.5px; color: var(--navy); margin-bottom: 10px; }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-options label {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: 9px; border: 1.5px solid var(--border);
+    font-size: 12.5px; cursor: pointer; transition: all 0.15s;
+  }
+  .quiz-options label:hover { border-color: var(--blue); background: var(--blue-tint); }
+  .quiz-options input { accent-color: var(--orange); width: 15px; height: 15px; flex-shrink: 0; }
+  .quiz-options label.opt-correct { border-color: var(--good); background: var(--good-tint); font-weight: 700; }
+  .quiz-options label.opt-incorrect { border-color: var(--bad); background: var(--bad-tint); }
+  .quiz-feedback { margin-top: 10px; padding: 9px 13px; border-radius: 8px; font-size: 12px; display: none; }
+  .quiz-feedback.correct { background: var(--good-tint); color: #0E7A37; display: block; }
+  .quiz-feedback.incorrect { background: var(--bad-tint); color: #A91E1E; display: block; }
+  .quiz-feedback.unanswered { background: var(--yellow-tint); color: #8A6500; display: block; }
+  .quiz-actions { display: flex; align-items: center; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
+  .quiz-score { font-size: 13px; font-weight: 800; padding: 8px 16px; border-radius: 20px; display: none; }
+  .quiz-score.show { display: inline-block; }
+  .quiz-score.pass { background: var(--good-tint); color: #0E7A37; }
+  .quiz-score.fail { background: var(--bad-tint); color: #A91E1E; }
+
+  /* =========================== BUTTONS =========================== */
+  .btn { border: none; border-radius: 10px; padding: 11px 22px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary { background: var(--orange); color: white; }
+  .btn-primary:hover { background: #E85F00; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,106,0,0.3); }
+  .btn-primary:disabled { background: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-navy { background: var(--navy); color: white; }
+  .btn-navy:hover { background: #16213F; }
+  .btn-outline { background: white; color: var(--navy); border: 1.5px solid var(--border); }
+  .btn-outline:hover { border-color: var(--navy); }
+  .btn-sm { padding: 7px 14px; font-size: 12px; }
+
+  /* =========================== DASHBOARD =========================== */
+  .hero-banner {
+    background: linear-gradient(135deg, var(--navy) 0%, #1B2A52 100%);
+    border-radius: 20px; padding: 40px 44px; margin-bottom: 28px;
+    position: relative; overflow: hidden;
+  }
+  .hero-banner::before {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 280px; height: 280px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,106,0,0.25) 0%, transparent 70%);
+  }
+  .hero-banner::after {
+    content: ''; position: absolute; bottom: -80px; left: 30%;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(21,87,214,0.25) 0%, transparent 70%);
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,106,0,0.18); border: 1px solid rgba(255,106,0,0.4);
+    color: #FFB07A; padding: 6px 16px; border-radius: 20px;
+    font-size: 10.5px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+    margin-bottom: 22px; position: relative; z-index: 1;
+  }
+  .hero-banner h1 { color: white; font-size: 34px; font-weight: 700; max-width: 600px; line-height: 1.2; margin-bottom: 12px; position: relative; z-index: 1; }
+  .hero-banner h1 span { color: var(--orange); }
+  .hero-banner p { color: rgba(255,255,255,0.65); font-size: 14.5px; max-width: 520px; margin-bottom: 26px; position: relative; z-index: 1; }
+  .hero-stats { display: flex; gap: 36px; position: relative; z-index: 1; flex-wrap: wrap; }
+  .hero-stat-num { font-family: 'Fraunces', serif; font-size: 30px; font-weight: 800; color: white; }
+  .hero-stat-label { font-size: 11px; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+  .name-input-card {
+    background: white; border-radius: 16px; padding: 22px 26px; margin-bottom: 28px;
+    border: 1px solid var(--border); display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  }
+  .name-input-card label { font-size: 13px; font-weight: 700; color: var(--navy); white-space: nowrap; }
+  .name-input-card input {
+    flex: 1; min-width: 220px; padding: 11px 16px; border-radius: 9px;
+    border: 1.5px solid var(--border); font-size: 13.5px; font-family: 'Manrope', sans-serif;
+    color: var(--text);
+  }
+  .name-input-card input:focus { outline: none; border-color: var(--orange); }
+  .name-save-note { font-size: 11px; color: var(--muted); }
+
+  .module-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 10px; }
+  .module-overview-card {
+    background: white; border: 1.5px solid var(--border); border-radius: 14px;
+    padding: 20px; cursor: pointer; transition: all 0.15s; position: relative;
+  }
+  .module-overview-card:hover:not(.locked) { border-color: var(--orange); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+  .module-overview-card.locked { opacity: 0.5; cursor: not-allowed; }
+  .module-overview-card.complete { border-color: var(--good); background: var(--good-tint); }
+  .moc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .moc-num { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 800; color: var(--orange); }
+  .module-overview-card.complete .moc-num { color: var(--good); }
+  .moc-status { font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .moc-status.locked { background: var(--gray); color: var(--muted); }
+  .moc-status.available { background: var(--blue-tint); color: var(--blue); }
+  .moc-status.complete { background: var(--good); color: white; }
+  .moc-title { font-size: 14.5px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+  .moc-time { font-size: 11px; color: var(--muted); }
+
+  /* =========================== CERTIFICATE =========================== */
+  .cert-wrap { display: flex; justify-content: center; padding: 10px 0 30px; }
+  .certificate {
+    width: 100%; max-width: 760px; background: white;
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 56px 60px; position: relative;
+    box-shadow: 0 20px 50px rgba(11,21,48,0.12);
+  }
+  .certificate::before {
+    content: ''; position: absolute; inset: 14px;
+    border: 2px solid var(--orange); border-radius: 2px; pointer-events: none;
+  }
+  .certificate::after {
+    content: ''; position: absolute; inset: 19px;
+    border: 1px solid var(--navy); border-radius: 2px; pointer-events: none;
+  }
+  .cert-inner { position: relative; z-index: 1; text-align: center; padding: 10px; }
+  .cert-logo-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 22px; }
+  .cert-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--orange); margin-bottom: 8px; }
+  .cert-heading { font-family: 'Fraunces', serif; font-size: 30px; font-weight: 700; color: var(--navy); margin-bottom: 18px; }
+  .cert-presented { font-size: 12px; color: var(--slate); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+  .cert-name { font-family: 'Fraunces', serif; font-size: 38px; font-weight: 800; color: var(--orange); margin-bottom: 18px; padding-bottom: 14px; border-bottom: 2px solid var(--border); display: inline-block; min-width: 360px; }
+  .cert-desc { font-size: 13.5px; color: var(--text); max-width: 460px; margin: 0 auto 24px; line-height: 1.7; }
+  .cert-desc strong { color: var(--navy); }
+  .cert-meta-row { display: flex; justify-content: center; gap: 50px; margin-top: 30px; }
+  .cert-meta { text-align: center; }
+  .cert-meta-label { font-size: 9.5px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; }
+  .cert-meta-val { font-size: 13px; font-weight: 700; color: var(--navy); }
+  .cert-seal {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--navy); color: white;
+    display: flex; align-items: center; justify-content: center;
+    margin: 24px auto 0; font-family: 'Fraunces', serif; font-weight: 800; font-size: 13px;
+    border: 3px solid var(--yellow); flex-direction: column; line-height: 1.1;
+  }
+  .cert-actions { display: flex; justify-content: center; gap: 12px; margin-top: 28px; }
+  .cert-locked-card { background: white; border: 2px dashed var(--border); border-radius: 16px; padding: 50px 30px; text-align: center; max-width: 520px; margin: 20px auto; }
+  .cert-locked-card .lock-emoji { font-size: 40px; margin-bottom: 14px; }
+
+  /* =========================== PRINT =========================== */
+  @media print {
+    body * { visibility: hidden; }
+    #screen-certificate, #screen-certificate * { visibility: visible; }
+    #screen-certificate { position: absolute; top: 0; left: 0; width: 100%; padding: 0; }
+    .no-print { display: none !important; }
+    .certificate { box-shadow: none; border: none; }
+  }
+
+  /* =========================== RESPONSIVE =========================== */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main-content { padding: 24px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .hero-banner h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============================== HEADER ============================== -->
+  <div class="app-header">
+    <div class="header-left">
+      <img src="https://raw.githubusercontent.com/Lalitha-Kalle/problems/refs/heads/main/GCSE%20Tutor%20Training%20Platfor%20Logo%201.png" alt="GradeX Logo" class="header-logo">
+      <div class="header-divider"></div>
+      <div class="header-title">GCSE Maths Tutor <strong>Certification Program</strong></div>
+    </div>
+    <div class="header-right">
+      <div class="header-learner" id="header-learner-block" style="display:none;">
+        <strong id="header-learner-name">—</strong>
+        <span id="header-learner-progress">0% complete</span>
+      </div>
+      <div class="progress-ring" id="header-progress-ring" style="--pct:0;">
+        <div class="progress-ring-inner" id="header-progress-pct">0%</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- ============================== SIDEBAR ============================== -->
+    <div class="sidebar">
+      <div class="sidebar-nav">
+        <div class="sidebar-section-label">Overview</div>
+        <div class="nav-item" data-screen="dashboard" onclick="navigateTo('dashboard')">
+          <div class="nav-badge">🏠</div>
+          <div><div class="nav-label">Dashboard</div></div>
+        </div>
+
+        <div class="sidebar-section-label" style="margin-top:14px;">Training Modules</div>
+        <div class="nav-item" data-screen="m1" data-key="m1" onclick="navigateTo('m1')">
+          <div class="nav-badge">1</div>
+          <div><div class="nav-label">The GCSE Ecosystem</div><div class="nav-sub">~15 min</div></div>
+        </div>
+        <div class="nav-item locked" data-screen="m2" data-key="m2" onclick="navigateTo('m2')">
+          <div class="nav-badge">2</div>
+          <div><div class="nav-label">Indian vs GCSE Teaching</div><div class="nav-sub">~15 min</div></div>
+          <div class="nav-lock-icon">🔒</div>
+        </div>
+        <div class="nav-item locked" data-screen="m3" data-key="m3" onclick="navigateTo('m3')">
+          <div class="nav-badge">3</div>
+          <div><div class="nav-label">GCSE Pedagogy</div><div class="nav-sub">~15 min</div></div>
+          <div class="nav-lock-icon">🔒</div>
+        </div>
+        <div class="nav-item locked" data-screen="m4" data-key="m4" onclick="navigateTo('m4')">
+          <div class="nav-badge">4</div>
+          <div><div class="nav-label">Online Tutoring Mastery</div><div class="nav-sub">~15 min</div></div>
+          <div class="nav-lock-icon">🔒</div>
+        </div>
+        <div class="nav-item locked" data-screen="m5" data-key="m5" onclick="navigateTo('m5')">
+          <div class="nav-badge">5</div>
+          <div><div class="nav-label">Communication &amp; Culture</div><div class="nav-sub">~10 min</div></div>
+          <div class="nav-lock-icon">🔒</div>
+        </div>
+
+        <div class="sidebar-section-label" style="margin-top:14px;">Certification</div>
+        <div class="nav-item locked" data-screen="final" data-key="final" onclick="navigateTo('final')">
+          <div class="nav-badge">📝</div>
+          <div><div class="nav-label">Final Assessment</div><div class="nav-sub">10 questions · 70% to pass</div></div>
+          <div class="nav-lock-icon">🔒</div>
+        </div>
+        <div class="nav-item locked" data-screen="certificate" data-key="certificate" onclick="navigateTo('certificate')">
+          <div class="nav-badge">🎓</div>
+          <div><div class="nav-label">Certificate</div></div>
+          <div class="nav-lock-icon">🔒</div>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <span class="sidebar-footer-text">Powered by</span>
+        <img src="https://raw.githubusercontent.com/Lalitha-Kalle/problems/refs/heads/main/01-removebg-preview.png" alt="Brand Logo" class="sidebar-footer-logo">
+      </div>
+    </div>
+
+    <!-- ============================== MAIN CONTENT ============================== -->
+    <div class="main-content">
+
+      <!-- ====================== DASHBOARD SCREEN ====================== -->
+      <div class="screen active" id="screen-dashboard">
+        <div class="hero-banner">
+          <div class="hero-badge">🎓 GradeX Tutor Academy</div>
+          <h1>GCSE Maths Tutor <span>Certification Program</span></h1>
+          <p>A focused training path that turns expert Indian Maths tutors into confident, exam-ready GCSE specialists — Foundation &amp; Higher, AQA · Edexcel · OCR.</p>
+          <div class="hero-stats">
+            <div><div class="hero-stat-num">5</div><div class="hero-stat-label">Modules</div></div>
+            <div><div class="hero-stat-num">~70m</div><div class="hero-stat-label">Total Time</div></div>
+            <div><div class="hero-stat-num">21</div><div class="hero-stat-label">Knowledge Checks</div></div>
+            <div><div class="hero-stat-num" id="dash-progress-stat">0%</div><div class="hero-stat-label">Your Progress</div></div>
+          </div>
+        </div>
+
+        <div class="name-input-card">
+          <label for="learner-name-input">👤 Tutor name</label>
+          <input type="text" id="learner-name-input" placeholder="Enter your full name — this appears on your certificate" oninput="updateLearnerName(this.value)">
+          <span class="name-save-note" id="name-save-note">Saved automatically</span>
+        </div>
+
+        <h4 style="margin-top:6px;">Your Learning Path</h4>
+        <div class="module-card-grid" id="dashboard-module-grid"></div>
+
+        <div style="margin-top:30px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="continue-btn" onclick="continueLearning()">Continue Learning →</button>
+          <button class="btn btn-outline btn-sm" onclick="resetProgress()">↺ Reset all progress</button>
+        </div>
+      </div>
+
+      <!-- ====================== MODULE SCREENS (injected) ====================== -->
+      <div class="screen" id="screen-m1">
+        <div class="module-header">
+          <div class="module-eyebrow">⏱ ~15 min · Module 01</div>
+          <h2>Understanding the GCSE Maths Ecosystem</h2>
+          <p>Everything you need to know about how GCSE Maths is structured, examined, and graded in the UK — before you teach your first student.</p>
+        </div>
+        <hr class="module-divider">
+
+        <h4>📐 Structure of GCSE Maths in the UK</h4>
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title"><span class="icon icon-orange">📋</span> 3 Papers per student</div>
+            <ul class="plain">
+              <li>Paper 1: Non-Calculator (1h 30min)</li>
+              <li>Paper 2: Calculator (1h 30min)</li>
+              <li>Paper 3: Calculator (1h 30min)</li>
+              <li>All papers sat in May/June</li>
+              <li>Total marks: 80 per paper (240 total)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="icon icon-blue">🎯</span> Two Tiers</div>
+            <ul class="plain">
+              <li>Foundation: Grades 1–5</li>
+              <li>Higher: Grades 4–9</li>
+              <li>Tier decided by school/student in Feb</li>
+              <li>Grade 4 = Standard pass</li>
+              <li>Grade 5 = "Strong pass"</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="icon icon-yellow">📅</span> Year Groups</div>
+            <ul class="plain">
+              <li>Year 10–11 (Ages 14–16)</li>
+              <li>Year 11 = Exam year</li>
+              <li>Some sit early in Yr 10</li>
+              <li>Resits: November series</li>
+              <li>iGCSE follows similar structure</li>
+            </ul>
+          </div>
+        </div>
+
+        <h4>📊 GCSE Grading System</h4>
+        <table class="data-table">
+          <thead><tr><th>Grade</th><th>Old Equivalent</th><th>Description</th><th>Tier Available</th><th>Typical % Mark</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-orange">9</span></td><td>A**</td><td>Exceptional – top ~3% nationally</td><td>Higher only</td><td>≈ 80–85%+</td></tr>
+            <tr><td><span class="badge badge-orange">8</span></td><td>A*/A</td><td>Outstanding performance</td><td>Higher only</td><td>≈ 65–80%</td></tr>
+            <tr><td><span class="badge badge-blue">7</span></td><td>A</td><td>Strong performance</td><td>Higher only</td><td>≈ 50–65%</td></tr>
+            <tr><td><span class="badge badge-blue">6</span></td><td>B</td><td>Good performance</td><td>Higher only</td><td>≈ 38–50%</td></tr>
+            <tr><td><span class="badge badge-good">5</span></td><td>B/C</td><td>"Strong Pass" — target for many schools</td><td>Foundation &amp; Higher</td><td>≈ 58–70% (F)</td></tr>
+            <tr><td><span class="badge badge-good">4</span></td><td>C</td><td>"Standard Pass" — resit threshold</td><td>Foundation &amp; Higher</td><td>≈ 40–58% (F)</td></tr>
+            <tr><td><span class="badge badge-yellow">3</span></td><td>D</td><td>Below standard pass</td><td>Foundation only</td><td>≈ 25–40% (F)</td></tr>
+            <tr><td><span class="badge badge-bad">2</span></td><td>E</td><td>Weak</td><td>Foundation only</td><td>≈ 12–25% (F)</td></tr>
+            <tr><td><span class="badge badge-bad">1</span></td><td>F/G</td><td>Minimal achievement</td><td>Foundation only</td><td>≈ 0–12% (F)</td></tr>
+            <tr><td>U</td><td>U</td><td>Unclassified</td><td>–</td><td>&lt; threshold</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout-yellow">
+          <div class="callout-title">⚠️ Why this matters for tutors</div>
+          <p>Grade boundaries vary by year and exam board. A student aiming for Grade 5 on Foundation may need ~58% — which is very achievable with targeted teaching. Don't aim for "perfection"; aim for <strong>boundary beating</strong>. Teaching to the boundary is a key GCSE skill.</p>
+        </div>
+
+        <h4>🏛️ AQA vs Edexcel vs OCR — What Actually Differs</h4>
+        <table class="data-table">
+          <thead><tr><th>Feature</th><th>AQA</th><th>Edexcel (Pearson)</th><th>OCR</th></tr></thead>
+          <tbody>
+            <tr><td class="col-head">Market Share</td><td>~50% — most common</td><td>~35% — 2nd most common</td><td>~15% — less common</td></tr>
+            <tr><td class="col-head">Question Style</td><td>Structured, sequential marks; clear step-by-step</td><td>Slightly more contextual; multi-mark questions</td><td>More worded/applied scenarios</td></tr>
+            <tr><td class="col-head">Algebra Style</td><td>Procedural with proof elements</td><td>More applied context</td><td>Reasoning-heavy</td></tr>
+            <tr><td class="col-head">Mark Scheme</td><td>Detailed with "oe" (or equivalent)</td><td>Accepts multiple methods</td><td>More flexible marking</td></tr>
+            <tr><td class="col-head">iGCSE Version</td><td>Level 1/2 Cert (AQA iGCSE)</td><td>Edexcel iGCSE (most popular)</td><td>OCR iGCSE</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout-blue">
+          <div class="callout-title">🎯 Practical Guidance for Tutors</div>
+          <p>Always ask students: <em>"Which exam board does your school use?"</em> Then source past papers from that board. AQA and Edexcel papers are most commonly needed. The mathematical content is ~95% identical — the differences are in presentation, language, and mark scheme flexibility. Master AQA first.</p>
+        </div>
+
+        <h4>🎯 Assessment Objectives (AO1, AO2, AO3)</h4>
+        <div class="grid-3">
+          <div class="ao-card ao1">
+            <div class="ao-label">AO1</div>
+            <div class="ao-name">Use &amp; Apply Standard Techniques</div>
+            <div class="ao-pct">~40% of marks</div>
+            <div class="ao-example">📌 Calculate, solve, simplify, evaluate — routine procedures</div>
+            <div class="ao-teach">Tutor focus: Accuracy, method knowledge, no shortcuts</div>
+          </div>
+          <div class="ao-card ao2">
+            <div class="ao-label">AO2</div>
+            <div class="ao-name">Reason, Interpret &amp; Communicate</div>
+            <div class="ao-pct">~30% of marks</div>
+            <div class="ao-example">📌 Explain reasoning, interpret data, justify answers</div>
+            <div class="ao-teach">Tutor focus: Students must write reasoning in sentences</div>
+          </div>
+          <div class="ao-card ao3">
+            <div class="ao-label">AO3</div>
+            <div class="ao-name">Solve Non-Routine Problems</div>
+            <div class="ao-pct">~30% of marks</div>
+            <div class="ao-example">📌 Multi-step, unfamiliar contexts, problem-solving</div>
+            <div class="ao-teach">Tutor focus: Strategy selection, persistence, planning</div>
+          </div>
+        </div>
+
+        <h4>✅ How GCSE Marks Are Awarded — Mark Scheme Anatomy</h4>
+        <div class="exam-box">
+          <div class="exam-box-header">
+            <div class="exam-box-title">AQA Higher — Sample Question with Mark Scheme</div>
+            <div class="exam-marks">[5 marks]</div>
+          </div>
+          <div class="exam-q">A car travels 240 km in 2.5 hours. It then travels a further 180 km at an average speed of 90 km/h. Find the average speed for the whole journey, correct to 1 decimal place.</div>
+          <div class="exam-marks-scheme">
+            <div class="mark-row"><span class="mark-type">M1</span><span class="mark-desc">Time for second part: 180 ÷ 90 = 2 hours</span></div>
+            <div class="mark-row"><span class="mark-type acc">A1</span><span class="mark-desc">2 hours obtained correctly</span></div>
+            <div class="mark-row"><span class="mark-type">M1</span><span class="mark-desc">Total distance ÷ total time: 420 ÷ 4.5</span></div>
+            <div class="mark-row"><span class="mark-type acc">A1</span><span class="mark-desc">93.3… seen (full value)</span></div>
+            <div class="mark-row"><span class="mark-type acc">A1</span><span class="mark-desc">93.3 km/h (rounded correctly)</span></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><span class="icon icon-orange">M</span> Method Marks (M marks)</div>
+            <ul class="plain">
+              <li>Awarded for correct strategy/approach</li>
+              <li>Even if arithmetic is wrong, M mark can still be earned</li>
+              <li>Teach students: <strong>always show the method</strong></li>
+              <li>Students lose M marks by just writing answers</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="icon icon-good">A</span> Accuracy Marks (A marks)</div>
+            <ul class="plain">
+              <li>Awarded for correct numerical answer</li>
+              <li>Usually depend on a method mark first</li>
+              <li>"B marks" are independent — no method needed</li>
+              <li>Units often required for final A mark</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout callout-bad">
+          <div class="callout-title">❌ Most Common Student Penalties (Examiner Report Data)</div>
+          <ul>
+            <li>Rounding too early — losing decimal precision mid-calculation</li>
+            <li>Omitting units (cm², degrees, km/h)</li>
+            <li>Not showing working — loses all M marks</li>
+            <li>Misreading the question (e.g. "perimeter" vs "area")</li>
+            <li>Ignoring "give reasons" instruction — losing AO2 marks</li>
+          </ul>
+        </div>
+
+        <h4>🔢 Calculator vs Non-Calculator — Paper Strategies</h4>
+        <table class="compare-table">
+          <thead><tr><th>Aspect</th><th>Paper 1 (Non-Calc)</th><th>Papers 2 &amp; 3 (Calculator)</th></tr></thead>
+          <tbody>
+            <tr><td>Core Skills Tested</td><td>Mental arithmetic, estimation, exact fractions, surds</td><td>Applied problems, graphs, statistics, complex geometry</td></tr>
+            <tr><td>Common Topics</td><td>Fractions, primes, HCF/LCM, simplifying surds, standard form</td><td>Trigonometry, reverse percentage, compound interest, volume</td></tr>
+            <tr><td>Teaching Priority</td><td>Times tables mastery, fraction operations, mental squaring</td><td>Calculator input accuracy, rounding, reading graph scales</td></tr>
+          </tbody>
+        </table>
+
+        <!-- ===== QUIZ M1 ===== -->
+        <div class="quiz-block">
+          <div class="quiz-header"><h4>📝 Knowledge Check — Module 1</h4></div>
+          <p>Answer all 4 questions, then check your answers below.</p>
+          <div id="quiz-m1"></div>
+          <div class="quiz-actions">
+            <button class="btn btn-navy" onclick="checkQuiz('m1')">Check Answers</button>
+            <span class="quiz-score" id="m1-score-badge"></span>
+            <button class="btn btn-primary" id="m1-complete-btn" onclick="markModuleComplete('m1')" disabled>✓ Mark Module Complete &amp; Continue</button>
+          </div>
+        </div>
+      </div>
+      <div class="screen" id="screen-m2">
+        <div class="module-header">
+          <div class="module-eyebrow">⏱ ~15 min · Module 02</div>
+          <h2>Indian Maths Teaching vs GCSE Maths Teaching</h2>
+          <p>Your mathematical strength is an asset — but GCSE students need a completely different teaching experience. Here's the honest, detailed comparison.</p>
+        </div>
+        <hr class="module-divider">
+
+        <div class="framework">
+          <div class="framework-title">Why Brilliant Mathematicians Initially Struggle as GCSE Tutors</div>
+          <div class="framework-sub">The transition gap is NOT about mathematical ability — it's about pedagogical reorientation</div>
+          <div class="framework-grid">
+            <div class="framework-cell">
+              <div class="framework-cell-title">Speed vs Scaffolding</div>
+              <p>Indian tutors solve fast and fluently. GCSE students need slow, narrated thinking. "Watch me do it fast" destroys student confidence.</p>
+            </div>
+            <div class="framework-cell">
+              <div class="framework-cell-title">Answer vs Process</div>
+              <p>In Indian coaching, the right answer ends the problem. In GCSE, the right answer without working gets zero. Process IS the product.</p>
+            </div>
+            <div class="framework-cell">
+              <div class="framework-cell-title">Formula vs Context</div>
+              <p>Indian students memorise formulae and apply. GCSE students encounter context-wrapped problems and must decode what maths to use first.</p>
+            </div>
+            <div class="framework-cell">
+              <div class="framework-cell-title">Lecture vs Dialogue</div>
+              <p>Coaching-centre style: tutor explains, student listens. GCSE style: tutor questions, student constructs understanding through guided dialogue.</p>
+            </div>
+            <div class="framework-cell">
+              <div class="framework-cell-title">Correct vs Incomplete</div>
+              <p>Indian system: wrong answer = re-teach. GCSE: wrong answer = diagnose which specific misconception to address.</p>
+            </div>
+            <div class="framework-cell">
+              <div class="framework-cell-title">Volume vs Depth</div>
+              <p>Indian coaching assigns 50 problems per topic. GCSE tutoring focuses on 5–8 problems with deep discussion of method and exam strategy.</p>
+            </div>
+          </div>
+        </div>
+
+        <h4>📊 Side-by-Side: Indian Coaching vs GCSE Teaching</h4>
+        <table class="compare-table">
+          <thead><tr><th>Dimension</th><th>🇮🇳 Indian Coaching Approach</th><th>🇬🇧 GCSE Approach Required</th></tr></thead>
+          <tbody>
+            <tr><td>Teaching Mode</td><td>Tutor demonstrates, student copies and repeats</td><td>Tutor prompts, student explains back; Socratic dialogue</td></tr>
+            <tr><td>Speed Priority</td><td>Faster = better; speed-solving valued</td><td>Slow, methodical; correct notation and reasoning valued</td></tr>
+            <tr><td>Problem Types</td><td>Algorithmic, well-defined, formula-driven</td><td>Contextual, worded, multi-step real-world scenarios</td></tr>
+            <tr><td>Mathematical Language</td><td>Minimal explanation; symbols and calculation</td><td>Written sentences, mathematical vocabulary, "because..."</td></tr>
+            <tr><td>Errors Handling</td><td>Correct the error, move on quickly</td><td>Diagnose the misconception, teach the concept afresh</td></tr>
+            <tr><td>Student Role</td><td>Passive receiver of method</td><td>Active participant; must construct &amp; verbalise understanding</td></tr>
+            <tr><td>Geometry</td><td>Coordinate geometry, calculus-linked</td><td>Reasoning with angles, constructions, proofs, transformations</td></tr>
+            <tr><td>Probability</td><td>Formulae-based calculations</td><td>Tree diagrams, Venn diagrams, verbal reasoning</td></tr>
+            <tr><td>Word Problems</td><td>Translate directly to equation, solve</td><td>Identify maths, set up model, solve, interpret, check units</td></tr>
+          </tbody>
+        </table>
+
+        <h4>📚 Practical Comparison: Ratio</h4>
+        <div class="card">
+          <table class="compare-table" style="margin-bottom:0;">
+            <thead><tr><th>Approach</th><th>🇮🇳 Indian Style</th><th>🇬🇧 GCSE Style</th></tr></thead>
+            <tbody>
+              <tr><td>Typical Problem</td><td>"Divide 360 in ratio 2:3:4"</td><td>"Josh and Emma share prize money 3:5. Emma gets £120 more than Josh. Find the total."</td></tr>
+              <tr><td>Tutor Response</td><td>Total parts = 9; each part = 40; Answer: 80:120:160</td><td>Draw bar model. 5–3 = 2 parts = £120; 1 part = £60; Total = 8×£60 = £480. Check: difference = £120 ✓</td></tr>
+              <tr><td>Diagram Use</td><td>Rarely used</td><td>Always: bar model, tape diagram, unit method drawn out</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>📚 Practical Comparison: Algebraic Proof</h4>
+        <div class="exam-box" style="margin-bottom:14px;">
+          <div class="exam-q"><strong>Q:</strong> Prove that (n + 3)² − (n + 1)² is always a multiple of 4, for all positive integers n.</div>
+        </div>
+        <div class="grid-2">
+          <div class="callout callout-yellow" style="margin-bottom:0;">
+            <div class="callout-title">🇮🇳 Indian tutor's instinct:</div>
+            <p>Expand: n² + 6n + 9 − n² − 2n − 1 = 4n + 8 = 4(n+2). Done.</p>
+            <p style="margin-top:8px; font-style:italic;">Correct, but the student learns nothing about what the examiner needs to read.</p>
+          </div>
+          <div class="callout callout-good" style="margin-bottom:0;">
+            <div class="callout-title">🇬🇧 What GCSE teaching requires:</div>
+            <p>1. "What does 'prove' mean to an examiner? Algebra — no examples."<br>2. Let n be any positive integer. Expand carefully.<br>3. "What should our final line look like? 4×(something)."<br>4. Write: "= 4(n+2), a multiple of 4 for all positive integers n."</p>
+          </div>
+        </div>
+        <div class="callout callout-blue">
+          <div class="callout-title">🎯 The GCSE Lesson Here</div>
+          <p>GCSE proof requires correct algebra <strong>plus a conclusion sentence</strong>. Students who stop at "= 4(n+2)" lose the final mark — this is an AO2 communication mark.</p>
+        </div>
+
+        <h4>📚 Practical Comparison: Bearings</h4>
+        <div class="grid-2">
+          <div class="callout callout-bad">
+            <div class="callout-title">❌ The Gap for Indian Tutors</div>
+            <ul>
+              <li>Bearings are measured CLOCKWISE from NORTH — not standard compass</li>
+              <li>Always written as 3 digits: 045°, not 45°</li>
+              <li>"Back bearing" = bearing ± 180°</li>
+              <li>Many tutors default to measuring from East — wrong in UK context</li>
+            </ul>
+          </div>
+          <div class="callout callout-good">
+            <div class="callout-title">🇬🇧 How to Teach It</div>
+            <ul>
+              <li>"Draw a North line at the starting point first — always."</li>
+              <li>"Measure clockwise — UK convention."</li>
+              <li>"Write 3 digits — even if it's 005°."</li>
+              <li>Trap: "bearing of A from B" vs "B from A" — always re-read</li>
+            </ul>
+          </div>
+        </div>
+
+        <h4>📚 Practical Comparison: Probability</h4>
+        <table class="compare-table">
+          <thead><tr><th>Element</th><th>🇮🇳 Expected Knowledge</th><th>🇬🇧 GCSE Expectation</th></tr></thead>
+          <tbody>
+            <tr><td>Diagrams</td><td>Calculation-only approach</td><td>Must draw tree diagrams, Venn diagrams, frequency trees</td></tr>
+            <tr><td>Conditional Prob</td><td>Formula notation P(A|B)</td><td>No notation — "without replacement", branches change on tree</td></tr>
+            <tr><td>Relative Freq</td><td>Not often taught separately</td><td>Major topic: experiment → estimate → compare to theoretical</td></tr>
+          </tbody>
+        </table>
+
+        <h4>📚 Practical Comparison: Transformations</h4>
+        <div class="callout callout-bad">
+          <div class="callout-title">❌ Critical Warning for Indian Tutors</div>
+          <p>Transformations are a major GCSE topic almost entirely absent in Indian Maths curricula: Translation (column vectors), Reflection, Rotation, Enlargement (incl. fractional &amp; negative scale factors), Combined transformations.</p>
+        </div>
+        <div class="callout callout-good">
+          <div class="callout-title">✅ What Full Marks Require — "Describe the transformation"</div>
+          <ul>
+            <li><strong>Rotation:</strong> "Rotation, 90° clockwise, about the point (0,0)"</li>
+            <li><strong>Reflection:</strong> "Reflection in the line y = 1"</li>
+            <li><strong>Translation:</strong> "Translation by vector (–3, 2)"</li>
+            <li><strong>Enlargement:</strong> "Enlargement, scale factor –2, centre (1, 3)"</li>
+          </ul>
+          <p style="margin-top:6px;"><em>Missing any component loses marks. Practise all four on graph paper before you teach them.</em></p>
+        </div>
+
+        <!-- ===== QUIZ M2 ===== -->
+        <div class="quiz-block">
+          <div class="quiz-header"><h4>📝 Knowledge Check — Module 2</h4></div>
+          <p>Answer all 4 questions, then check your answers below.</p>
+          <div id="quiz-m2"></div>
+          <div class="quiz-actions">
+            <button class="btn btn-navy" onclick="checkQuiz('m2')">Check Answers</button>
+            <span class="quiz-score" id="m2-score-badge"></span>
+            <button class="btn btn-primary" id="m2-complete-btn" onclick="markModuleComplete('m2')" disabled>✓ Mark Module Complete &amp; Continue</button>
+          </div>
+        </div>
+      </div>
+      <div class="screen" id="screen-m3">
+        <div class="module-header">
+          <div class="module-eyebrow">⏱ ~15 min · Module 03</div>
+          <h2>GCSE Maths Pedagogy Training</h2>
+          <p>The art and science of teaching GCSE Maths effectively — how UK students think, what breaks their confidence, and how expert tutors navigate both.</p>
+        </div>
+        <hr class="module-divider">
+
+        <h4>🧠 How UK Students Think During Maths Exams</h4>
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title"><span class="icon icon-bad">😰</span> The Anxiety Response</div>
+            <p style="font-size:12.5px;color:var(--slate);">Many UK students experience Maths anxiety from early on. They freeze at "hard-looking" questions, skip multi-step problems, and default to "I don't know" rapidly.</p>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="icon icon-yellow">🔍</span> Keyword Scanning</div>
+            <p style="font-size:12.5px;color:var(--slate);">Students scan for trigger words: "area", "probability", "ratio". When they can't find a keyword or the context is unfamiliar, they feel lost — even if the maths is simple.</p>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="icon icon-blue">🏃</span> Rushing vs Checking</div>
+            <p style="font-size:12.5px;color:var(--slate);">Weaker students rush to finish for relief; stronger students rush from overconfidence. Teach a checking habit explicitly — it's a learnable exam skill.</p>
+          </div>
+        </div>
+
+        <h4>🏗️ Scaffolding Framework — The Gradual Release Model</h4>
+        <div class="step-flow">
+          <div class="step-item"><div class="step-num">1</div><div class="step-label">I Do</div><div class="step-sub">Tutor models, narrated thinking</div></div>
+          <div class="step-item"><div class="step-num">2</div><div class="step-label">We Do</div><div class="step-sub">Tutor + student solve together</div></div>
+          <div class="step-item"><div class="step-num">3</div><div class="step-label">You Do (guided)</div><div class="step-sub">Student attempts with prompts</div></div>
+          <div class="step-item"><div class="step-num">4</div><div class="step-label">You Do (alone)</div><div class="step-sub">Student solves independently</div></div>
+          <div class="step-item"><div class="step-num">5</div><div class="step-label">Transfer</div><div class="step-sub">New exam-style variant</div></div>
+        </div>
+
+        <div class="callout callout-yellow">
+          <div class="callout-title">⚠️ Indian Tutor Common Error at Step 1</div>
+          <p>During "I Do", tutors often go too quickly and fluently — the student watches but can't follow. Instead: go <strong>deliberately slowly</strong>, think aloud ("I notice... I wonder..."), and pause to ask "What should I do next?"</p>
+        </div>
+
+        <h4>❓ GCSE Questioning Language — Prompting Rather Than Telling</h4>
+        <table class="data-table">
+          <thead><tr><th>Situation</th><th>❌ Don't Say</th><th>✅ Say Instead</th></tr></thead>
+          <tbody>
+            <tr><td>Student stuck on first step</td><td>"You need to form an equation"</td><td>"What information have we been given? Can we write that down?"</td></tr>
+            <tr><td>Student makes an error</td><td>"That's wrong — you forgot to..."</td><td>"Can you check your second line? What does that step tell you?"</td></tr>
+            <tr><td>Student gives right answer</td><td>"Correct, next question"</td><td>"Good — why does that work? Could you show me another way?"</td></tr>
+            <tr><td>AO2 "explain" question</td><td>"Write: because the angles add to 180"</td><td>"How would you explain WHY to a friend, in words?"</td></tr>
+            <tr><td>Student says "I don't get it"</td><td>"Let me show you again"</td><td>"What part makes sense so far? Let's start there."</td></tr>
+          </tbody>
+        </table>
+
+        <h4>🚨 Common GCSE Maths Misconceptions — By Topic</h4>
+        <div class="grid-2">
+          <div>
+            <div class="misconception">
+              <div class="misconception-q">Fractions: "½ + ⅓ = 2/5"</div>
+              <div class="misconception-fix"><strong>Fix:</strong> Common denominator always. Draw fraction bars. "Can we add apples and oranges directly?"</div>
+            </div>
+            <div class="misconception">
+              <div class="misconception-q">Expanding: "(a + b)² = a² + b²"</div>
+              <div class="misconception-fix"><strong>Fix:</strong> Area model diagram — square with 4 regions: a², ab, ab, b².</div>
+            </div>
+            <div class="misconception">
+              <div class="misconception-q">Negatives: "–3² = 9"</div>
+              <div class="misconception-fix"><strong>Fix:</strong> Order of operations. –3² = –(3²) = –9. (–3)² = 9.</div>
+            </div>
+          </div>
+          <div>
+            <div class="misconception">
+              <div class="misconception-q">Percentages: "20% of 60 = 20 × 60"</div>
+              <div class="misconception-fix"><strong>Fix:</strong> 20% = 0.2. So 0.2 × 60 = 12. Build multiplier sense first.</div>
+            </div>
+            <div class="misconception">
+              <div class="misconception-q">Angles: "Co-interior angles are equal"</div>
+              <div class="misconception-fix"><strong>Fix:</strong> "Co-interior = C shape, sum to 180°. Alternate = Z shape, equal."</div>
+            </div>
+            <div class="misconception">
+              <div class="misconception-q">Vectors: Adding instead of subtracting for AB</div>
+              <div class="misconception-fix"><strong>Fix:</strong> AB = b – a. "You go FROM A TO B — give up a, gain b."</div>
+            </div>
+          </div>
+        </div>
+
+        <h4>💪 Building Confidence in Low-Performing Students</h4>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><span class="icon icon-good">🌱</span> What Works</div>
+            <ul class="checklist">
+              <li>Start every session with something the student <em>can</em> do</li>
+              <li>Name the specific skill they've improved</li>
+              <li>Never compare to other students</li>
+              <li>Use "yet" language: "You can't do this <em>yet</em>"</li>
+              <li>Celebrate partial progress — method attempts, not just full answers</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="icon icon-bad">🚫</span> Never Do</div>
+            <ul class="checklist bad">
+              <li>Show how quickly YOU can solve it</li>
+              <li>Say "This is easy / basic / Year 7 stuff"</li>
+              <li>Interrupt mid-attempt to show the "better way"</li>
+              <li>Ask "Do you understand?" — students always say yes</li>
+              <li>Show visible frustration at repeated errors</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===== QUIZ M3 ===== -->
+        <div class="quiz-block">
+          <div class="quiz-header"><h4>📝 Knowledge Check — Module 3</h4></div>
+          <p>Answer all 4 questions, then check your answers below.</p>
+          <div id="quiz-m3"></div>
+          <div class="quiz-actions">
+            <button class="btn btn-navy" onclick="checkQuiz('m3')">Check Answers</button>
+            <span class="quiz-score" id="m3-score-badge"></span>
+            <button class="btn btn-primary" id="m3-complete-btn" onclick="markModuleComplete('m3')" disabled>✓ Mark Module Complete &amp; Continue</button>
+          </div>
+        </div>
+      </div>
+      <div class="screen" id="screen-m4">
+        <div class="module-header">
+          <div class="module-eyebrow">⏱ ~15 min · Module 04</div>
+          <h2>Online 1-to-1 GCSE Maths Tutoring Mastery</h2>
+          <p>Structure, systems, and strategies for running outstanding online sessions that students love and parents recommend.</p>
+        </div>
+        <hr class="module-divider">
+
+        <h4>🗺️ The 60-Minute GCSE Maths Lesson Blueprint</h4>
+        <div class="lesson-map">
+          <div class="lesson-map-header"><span>60-Minute Online 1:1 Lesson Structure</span><span style="font-size:11px;opacity:0.7;">Optimised for GCSE Maths</span></div>
+          <div class="lesson-segment">
+            <div class="seg-time">0–5 min</div><div class="seg-bar" style="width:50px;background:var(--good);"></div>
+            <div class="seg-content"><div class="seg-title">🟢 Warm-Up &amp; Reconnect</div><div class="seg-desc">Review last session. Retrieval practice: "What do you remember from last time?" Quick 2-min mental maths starter.</div></div>
+          </div>
+          <div class="lesson-segment">
+            <div class="seg-time">5–15 min</div><div class="seg-bar" style="width:100px;background:var(--blue);"></div>
+            <div class="seg-content"><div class="seg-title">🔵 Homework Review &amp; Error Analysis</div><div class="seg-desc">Don't just mark — diagnose. Pick 1–2 error types to target. "You got this wrong here — what were you thinking?"</div></div>
+          </div>
+          <div class="lesson-segment">
+            <div class="seg-time">15–35 min</div><div class="seg-bar" style="width:200px;background:var(--orange);"></div>
+            <div class="seg-content"><div class="seg-title">🟠 Core Teaching Block</div><div class="seg-desc">I Do (5min) → We Do (7min) → You Do (8min). Interaction every 2–3 min. Never monologue more than 3 minutes.</div></div>
+          </div>
+          <div class="lesson-segment">
+            <div class="seg-time">35–50 min</div><div class="seg-bar" style="width:150px;background:var(--yellow);"></div>
+            <div class="seg-content"><div class="seg-title">🟡 Exam-Style Practice</div><div class="seg-desc">2–3 real past-paper questions. Tutor observes silently, then reviews against mark scheme.</div></div>
+          </div>
+          <div class="lesson-segment">
+            <div class="seg-time">50–57 min</div><div class="seg-bar" style="width:70px;background:var(--good);"></div>
+            <div class="seg-content"><div class="seg-title">🟢 Consolidation</div><div class="seg-desc">Student summarises learning in their own words. "What would you teach a friend about today?"</div></div>
+          </div>
+          <div class="lesson-segment">
+            <div class="seg-time">57–60 min</div><div class="seg-bar" style="width:30px;background:var(--muted);"></div>
+            <div class="seg-content"><div class="seg-title">⚪ Homework &amp; Next Steps</div><div class="seg-desc">Set 3–5 targeted past paper questions. Preview next topic. Close warmly.</div></div>
+          </div>
+        </div>
+
+        <h4>🖥️ Online Whiteboard &amp; Teaching Tools</h4>
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title"><span class="icon icon-blue">📱</span> Whiteboard Setup</div>
+            <ul class="plain">
+              <li>Use Bitpaper, Miro, or Bramble</li>
+              <li>Prepare template grids pre-lesson</li>
+              <li>Colour-code: red = error, green = correct, blue = note</li>
+              <li>Share whiteboard control with student</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="icon icon-orange">✏️</span> Annotation Workflow</div>
+            <ul class="plain">
+              <li>Tutor draws step 1, hands control for step 2</li>
+              <li>Student writes — never just watching</li>
+              <li>Freeze work, annotate feedback in red</li>
+              <li>Save board screenshot as revision resource</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="icon icon-yellow">⏱</span> Interaction Rules</div>
+            <ul class="plain">
+              <li><strong>2–3 minute rule:</strong> never explain longer without interaction</li>
+              <li>Ask "Can you tell me...?" not "Do you understand?"</li>
+              <li>Pause 5–7 seconds after questions</li>
+              <li>Check understanding by asking student to explain back</li>
+            </ul>
+          </div>
+        </div>
+
+        <h4>📈 Progress Tracking &amp; Reporting System</h4>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><span class="icon icon-orange">📋</span> Topic Mastery Tracker</div>
+            <div class="progress-bar-wrap"><div class="progress-label"><span>Fractions</span><span style="color:var(--good);">Secure ✓</span></div><div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--good);"></div></div></div>
+            <div class="progress-bar-wrap"><div class="progress-label"><span>Quadratic Equations</span><span style="color:#B45309;">Developing</span></div><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--yellow);"></div></div></div>
+            <div class="progress-bar-wrap"><div class="progress-label"><span>Circle Theorems</span><span style="color:var(--bad);">Needs Work</span></div><div class="progress-bar"><div class="progress-fill" style="width:20%;background:var(--bad);"></div></div></div>
+            <p style="font-size:11px;color:var(--muted);margin-top:8px;">Update after every session. Share with parents monthly.</p>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="icon icon-blue">📧</span> Parent Report Template</div>
+            <div style="background:#FAFBFD;border-radius:8px;padding:13px;font-size:11.5px;border:1px solid var(--border);">
+              <p style="font-weight:700;margin-bottom:6px;">Session Report — [Student] | [Date]</p>
+              <p style="margin-bottom:4px;"><strong>Topic:</strong> Quadratic Equations (Factorising)</p>
+              <p style="margin-bottom:4px;"><strong>Progress:</strong> Excellent progress when coefficient of x²=1. Building into harder cases.</p>
+              <p style="margin-bottom:4px;"><strong>Homework:</strong> AQA Nov 2023 P2 Q14–16</p>
+              <p><strong>Next focus:</strong> Quadratic formula + method selection</p>
+            </div>
+          </div>
+        </div>
+
+        <h4>🚨 Last-Minute Exam Preparation Strategy (Final 4 Weeks)</h4>
+        <div class="step-flow">
+          <div class="step-item"><div class="step-num">W1</div><div class="step-label">Diagnose</div><div class="step-sub">Full mock; identify top 5 weak areas</div></div>
+          <div class="step-item"><div class="step-num">W2</div><div class="step-label">Target Weak Areas</div><div class="step-sub">3 sessions on highest-yield topics</div></div>
+          <div class="step-item"><div class="step-num">W3</div><div class="step-label">Exam Technique</div><div class="step-sub">Timed paper practice; mark scheme training</div></div>
+          <div class="step-item"><div class="step-num">W4</div><div class="step-label">Consolidate</div><div class="step-sub">Quick revision of all topics; confidence session</div></div>
+        </div>
+
+        <!-- ===== QUIZ M4 ===== -->
+        <div class="quiz-block">
+          <div class="quiz-header"><h4>📝 Knowledge Check — Module 4</h4></div>
+          <p>Answer all 4 questions, then check your answers below.</p>
+          <div id="quiz-m4"></div>
+          <div class="quiz-actions">
+            <button class="btn btn-navy" onclick="checkQuiz('m4')">Check Answers</button>
+            <span class="quiz-score" id="m4-score-badge"></span>
+            <button class="btn btn-primary" id="m4-complete-btn" onclick="markModuleComplete('m4')" disabled>✓ Mark Module Complete &amp; Continue</button>
+          </div>
+        </div>
+      </div>
+      <div class="screen" id="screen-m5">
+        <div class="module-header">
+          <div class="module-eyebrow">⏱ ~10 min · Module 05</div>
+          <h2>Communication &amp; Cultural Adaptation</h2>
+          <p>How to sound, speak, and connect like a trusted GCSE Maths tutor to UK students and parents.</p>
+        </div>
+        <hr class="module-divider">
+
+        <h4>🗣️ Simplifying Mathematical Language for UK Students</h4>
+        <table class="compare-table">
+          <thead><tr><th>Situation</th><th>🇮🇳 How it might sound</th><th>🇬🇧 How to adapt it</th></tr></thead>
+          <tbody>
+            <tr><td>Explaining gradient</td><td>"The derivative gives the instantaneous rate of change"</td><td>"Gradient just means steepness. How much does y go up when x goes 1 to the right?"</td></tr>
+            <tr><td>Simultaneous equations</td><td>"Two unknowns requiring a system of linear equations"</td><td>"We've got two mysteries — x and y. Two clues. We solve them together."</td></tr>
+            <tr><td>Explaining a mistake</td><td>"Your approach lacks mathematical rigour"</td><td>"Almost — look at line 2, the negative sign. Can you spot it?"</td></tr>
+            <tr><td>Starting a lesson</td><td>"Today we shall cover trigonometric ratios"</td><td>"Last week we did Pythagoras — today's one step further. Ready?"</td></tr>
+          </tbody>
+        </table>
+
+        <h4>📜 Session Scripts — Opening &amp; Closing</h4>
+        <div class="grid-2">
+          <div class="dialogue">
+            <div class="dialogue-title">✅ Strong Session Opening</div>
+            <div class="chat-msg">
+              <div class="chat-avatar avatar-tutor">T</div>
+              <div class="chat-bubble bubble-tutor"><div class="chat-role">Tutor</div>"Hey, great to see you! Last time we covered percentages — can you tell me how you'd find 17.5% of £640 without a calculator? Take your time."</div>
+            </div>
+            <div style="background:var(--good-tint);border-radius:8px;padding:9px 12px;margin-top:8px;font-size:11.5px;color:#0E7A37;">✓ Rapport first &nbsp;|&nbsp; ✓ Retrieval check &nbsp;|&nbsp; ✓ Student talks first</div>
+          </div>
+          <div class="dialogue">
+            <div class="dialogue-title">✅ Strong Session Close</div>
+            <div class="chat-msg">
+              <div class="chat-avatar avatar-tutor">T</div>
+              <div class="chat-bubble bubble-tutor"><div class="chat-role">Tutor</div>"In one sentence, what's the key thing you're taking away today? Your homework is Q14, 15, 17 from AQA June 2022 — I'll drop them in chat. Next time: 3D trig, which builds on this."</div>
+            </div>
+            <div style="background:var(--good-tint);border-radius:8px;padding:9px 12px;margin-top:8px;font-size:11.5px;color:#0E7A37;">✓ Student articulates learning &nbsp;|&nbsp; ✓ Specific homework &nbsp;|&nbsp; ✓ Forward-looking</div>
+          </div>
+        </div>
+
+        <h4>💬 Positive Reinforcement — UK Tutoring Style</h4>
+        <div class="grid-3">
+          <div class="callout callout-good">
+            <div class="callout-title">✅ Effective Praise</div>
+            <ul><li>"That's a really smart observation"</li><li>"You've got that — let's make it harder"</li><li>"That's better than last week — I can see it clicking"</li></ul>
+          </div>
+          <div class="callout callout-yellow">
+            <div class="callout-title">⚠️ Neutral (Not Discouraging)</div>
+            <ul><li>"Close — let's look at line 3 together"</li><li>"You're on the right track — what comes next?"</li><li>"Let's park that for now and come back"</li></ul>
+          </div>
+          <div class="callout callout-bad">
+            <div class="callout-title">❌ Never Say</div>
+            <ul><li>"This is simple / easy / basic"</li><li>"You should know this already"</li><li>"That's completely wrong"</li></ul>
+          </div>
+        </div>
+
+        <h4>🎙️ Accent Neutrality, Pacing &amp; UK Vocabulary</h4>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title"><span class="icon icon-blue">🔊</span> Speaking Pace &amp; Clarity</div>
+            <ul class="plain">
+              <li>Speak at ~120–130 words per minute</li>
+              <li>Pause after mathematical statements</li>
+              <li>Avoid rapid-fire multi-step explanations</li>
+              <li>Enunciate clearly: "fifteen" vs "fifty" confusion is common</li>
+              <li>Check comprehension: "Does that make sense?"</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title"><span class="icon icon-orange">🇬🇧</span> UK Mathematical Vocabulary</div>
+            <ul class="plain">
+              <li>"Cancels" (not "cuts")</li>
+              <li>"Brackets" (not "parentheses")</li>
+              <li>"Factorise" (not "factor")</li>
+              <li>"Gradient" (not "slope")</li>
+              <li>"Significant figures" (not "significant digits")</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ===== QUIZ M5 ===== -->
+        <div class="quiz-block">
+          <div class="quiz-header"><h4>📝 Knowledge Check — Module 5</h4></div>
+          <p>Answer all 4 questions, then check your answers below.</p>
+          <div id="quiz-m5"></div>
+          <div class="quiz-actions">
+            <button class="btn btn-navy" onclick="checkQuiz('m5')">Check Answers</button>
+            <span class="quiz-score" id="m5-score-badge"></span>
+            <button class="btn btn-primary" id="m5-complete-btn" onclick="markModuleComplete('m5')" disabled>✓ Mark Module Complete &amp; Continue to Final Assessment</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====================== FINAL ASSESSMENT SCREEN ====================== -->
+      <div class="screen" id="screen-final">
+        <div class="module-header">
+          <div class="module-eyebrow">🏁 Certification Gate</div>
+          <h2>Final Assessment</h2>
+          <p>10 questions covering all five modules. Score 70% or higher to unlock your GradeX Tutor Certificate.</p>
+        </div>
+        <hr class="module-divider">
+        <div id="final-quiz-container"></div>
+      </div>
+
+      <!-- ====================== CERTIFICATE SCREEN ====================== -->
+      <div class="screen" id="screen-certificate">
+        <div class="module-header">
+          <div class="module-eyebrow">🎓 Certification</div>
+          <h2>Your Certificate</h2>
+          <p>Congratulations on completing the GradeX GCSE Maths Tutor Certification Program.</p>
+        </div>
+        <hr class="module-divider">
+        <div id="certificate-container"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   GRADEX LMS — STATE, STORAGE, NAVIGATION
+   ========================================================= */
+const MODULE_ORDER = ['m1','m2','m3','m4','m5'];
+const MODULE_META = {
+  m1: { title: 'The GCSE Ecosystem', time: '15 min' },
+  m2: { title: 'Indian vs GCSE Teaching', time: '15 min' },
+  m3: { title: 'GCSE Pedagogy', time: '15 min' },
+  m4: { title: 'Online Tutoring Mastery', time: '15 min' },
+  m5: { title: 'Communication & Culture', time: '10 min' }
+};
+
+let state = {
+  learnerName: '',
+  modules: {
+    m1: { complete: false, quizChecked: false, score: 0, total: 0 },
+    m2: { complete: false, quizChecked: false, score: 0, total: 0 },
+    m3: { complete: false, quizChecked: false, score: 0, total: 0 },
+    m4: { complete: false, quizChecked: false, score: 0, total: 0 },
+    m5: { complete: false, quizChecked: false, score: 0, total: 0 }
+  },
+  finalAssessment: { attempted: false, passed: false, score: 0, total: 0 },
+  certificateIssued: false
+};
+
+async function loadState() {
+  try {
+    const result = await window.storage.get('gradex-progress', false);
+    if (result && result.value) {
+      const loaded = JSON.parse(result.value);
+      state = Object.assign(state, loaded);
+      if (loaded.modules) state.modules = Object.assign(state.modules, loaded.modules);
+      if (loaded.finalAssessment) state.finalAssessment = Object.assign(state.finalAssessment, loaded.finalAssessment);
+    }
+  } catch (e) {
+    console.log('No saved progress found, starting fresh.');
+  }
+  hydrateUI();
+}
+
+async function saveState() {
+  try {
+    await window.storage.set('gradex-progress', JSON.stringify(state), false);
+  } catch (e) {
+    console.error('Could not save progress:', e);
+  }
+}
+
+async function resetProgress() {
+  if (!confirm('Reset all progress, quiz scores, and certificate? This cannot be undone.')) return;
+  state = {
+    learnerName: '',
+    modules: {
+      m1: { complete: false, quizChecked: false, score: 0, total: 0 },
+      m2: { complete: false, quizChecked: false, score: 0, total: 0 },
+      m3: { complete: false, quizChecked: false, score: 0, total: 0 },
+      m4: { complete: false, quizChecked: false, score: 0, total: 0 },
+      m5: { complete: false, quizChecked: false, score: 0, total: 0 }
+    },
+    finalAssessment: { attempted: false, passed: false, score: 0, total: 0 },
+    certificateIssued: false
+  };
+  await saveState();
+  document.getElementById('learner-name-input').value = '';
+  document.querySelectorAll('input[type=radio]').forEach(r => r.checked = false);
+  document.querySelectorAll('.quiz-feedback').forEach(f => { f.style.display='none'; f.className='quiz-feedback'; });
+  document.querySelectorAll('.quiz-score').forEach(s => { s.classList.remove('show','pass','fail'); });
+  document.querySelectorAll('.quiz-options label').forEach(l => l.classList.remove('opt-correct','opt-incorrect'));
+  hydrateUI();
+  navigateTo('dashboard');
+}
+
+function updateLearnerName(name) {
+  state.learnerName = name;
+  saveState();
+  hydrateUI();
+}
+
+/* ---------------- LOCK LOGIC ---------------- */
+function isUnlocked(key) {
+  if (key === 'm1') return true;
+  if (key === 'dashboard') return true;
+  if (MODULE_ORDER.includes(key)) {
+    const idx = MODULE_ORDER.indexOf(key);
+    const prevKey = MODULE_ORDER[idx - 1];
+    return state.modules[prevKey] && state.modules[prevKey].complete;
+  }
+  if (key === 'final') {
+    return MODULE_ORDER.every(k => state.modules[k].complete);
+  }
+  if (key === 'certificate') {
+    return state.finalAssessment.passed;
+  }
+  return false;
+}
+
+function overallProgressPct() {
+  const totalSteps = MODULE_ORDER.length + 1; // 5 modules + final assessment
+  let done = MODULE_ORDER.filter(k => state.modules[k].complete).length;
+  if (state.finalAssessment.passed) done += 1;
+  return Math.round((done / totalSteps) * 100);
+}
+
+/* ---------------- NAVIGATION ---------------- */
+function navigateTo(screenKey) {
+  if (!isUnlocked(screenKey)) {
+    flashLocked(screenKey);
+    return;
+  }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('screen-' + screenKey);
+  if (target) target.classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navItem = document.querySelector('.nav-item[data-screen="' + screenKey + '"]');
+  if (navItem) navItem.classList.add('active');
+
+  document.querySelector('.main-content').scrollTop = 0;
+  window.scrollTo(0,0);
+
+  if (screenKey === 'final') renderFinalQuiz();
+  if (screenKey === 'certificate') renderCertificate();
+}
+
+function flashLocked(screenKey) {
+  const navItem = document.querySelector('.nav-item[data-screen="' + screenKey + '"]');
+  if (navItem) {
+    navItem.style.transition = 'none';
+    navItem.style.background = '#FEF0F0';
+    setTimeout(() => { navItem.style.transition = 'background 0.4s'; navItem.style.background = ''; }, 400);
+  }
+}
+
+function continueLearning() {
+  const next = MODULE_ORDER.find(k => !state.modules[k].complete);
+  if (next) { navigateTo(next); return; }
+  if (!state.finalAssessment.passed) { navigateTo('final'); return; }
+  navigateTo('certificate');
+}
+
+function markModuleComplete(key) {
+  state.modules[key].complete = true;
+  saveState();
+  hydrateUI();
+  const idx = MODULE_ORDER.indexOf(key);
+  const next = MODULE_ORDER[idx + 1];
+  if (next) {
+    navigateTo(next);
+  } else {
+    navigateTo('final');
+  }
+}
+
+/* ---------------- UI HYDRATION ---------------- */
+function hydrateUI() {
+  // Header
+  const pct = overallProgressPct();
+  document.getElementById('header-progress-ring').style.setProperty('--pct', pct);
+  document.getElementById('header-progress-pct').textContent = pct + '%';
+  const learnerBlock = document.getElementById('header-learner-block');
+  if (state.learnerName) {
+    learnerBlock.style.display = 'block';
+    document.getElementById('header-learner-name').textContent = state.learnerName;
+    document.getElementById('header-learner-progress').textContent = pct + '% complete';
+  } else {
+    learnerBlock.style.display = 'none';
+  }
+  document.getElementById('dash-progress-stat').textContent = pct + '%';
+
+  // Name input
+  const nameInput = document.getElementById('learner-name-input');
+  if (document.activeElement !== nameInput) nameInput.value = state.learnerName || '';
+
+  // Sidebar nav items
+  ['m1','m2','m3','m4','m5','final','certificate'].forEach(key => {
+    const navItem = document.querySelector('.nav-item[data-screen="' + key + '"]');
+    if (!navItem) return;
+    const unlocked = isUnlocked(key);
+    navItem.classList.toggle('locked', !unlocked);
+    const lockIcon = navItem.querySelector('.nav-lock-icon');
+    let isComplete = false;
+    if (MODULE_ORDER.includes(key)) isComplete = state.modules[key].complete;
+    if (key === 'final') isComplete = state.finalAssessment.passed;
+    if (key === 'certificate') isComplete = state.certificateIssued;
+    navItem.classList.toggle('complete', isComplete);
+    if (lockIcon) lockIcon.style.display = (unlocked || isComplete) ? 'none' : 'block';
+    const badge = navItem.querySelector('.nav-badge');
+    if (badge && isComplete) badge.textContent = '✓';
+    else if (badge && MODULE_ORDER.includes(key)) badge.textContent = (MODULE_ORDER.indexOf(key)+1);
+    else if (badge && key==='final') badge.textContent = '📝';
+    else if (badge && key==='certificate') badge.textContent = '🎓';
+  });
+
+  // Dashboard module grid
+  renderDashboardGrid();
+
+  // Continue button label
+  const allDone = MODULE_ORDER.every(k => state.modules[k].complete) && state.finalAssessment.passed;
+  document.getElementById('continue-btn').textContent = allDone ? 'View Certificate →' : 'Continue Learning →';
+}
+
+function renderDashboardGrid() {
+  const grid = document.getElementById('dashboard-module-grid');
+  let html = '';
+  MODULE_ORDER.forEach((key, i) => {
+    const m = state.modules[key];
+    const unlocked = isUnlocked(key);
+    const statusClass = m.complete ? 'complete' : (unlocked ? 'available' : 'locked');
+    const statusText = m.complete ? '✓ Complete' : (unlocked ? 'Available' : 'Locked');
+    html += `
+      <div class="module-overview-card ${m.complete ? 'complete' : ''} ${!unlocked ? 'locked' : ''}" onclick="navigateTo('${key}')">
+        <div class="moc-top">
+          <div class="moc-num">${String(i+1).padStart(2,'0')}</div>
+          <div class="moc-status ${statusClass}">${statusText}</div>
+        </div>
+        <div class="moc-title">${MODULE_META[key].title}</div>
+        <div class="moc-time">⏱ ${MODULE_META[key].time}${m.quizChecked ? ' · Quiz: ' + m.score + '/' + m.total : ''}</div>
+      </div>`;
+  });
+  // Final assessment + certificate cards
+  const finalUnlocked = isUnlocked('final');
+  const finalDone = state.finalAssessment.passed;
+  html += `
+    <div class="module-overview-card ${finalDone ? 'complete' : ''} ${!finalUnlocked ? 'locked' : ''}" onclick="navigateTo('final')">
+      <div class="moc-top">
+        <div class="moc-num">📝</div>
+        <div class="moc-status ${finalDone ? 'complete' : (finalUnlocked ? 'available' : 'locked')}">${finalDone ? '✓ Passed' : (finalUnlocked ? 'Available' : 'Locked')}</div>
+      </div>
+      <div class="moc-title">Final Assessment</div>
+      <div class="moc-time">${state.finalAssessment.attempted ? 'Last score: ' + state.finalAssessment.score + '/' + state.finalAssessment.total : '10 questions · 70% to pass'}</div>
+    </div>`;
+  const certUnlocked = isUnlocked('certificate');
+  html += `
+    <div class="module-overview-card ${state.certificateIssued ? 'complete' : ''} ${!certUnlocked ? 'locked' : ''}" onclick="navigateTo('certificate')">
+      <div class="moc-top">
+        <div class="moc-num">🎓</div>
+        <div class="moc-status ${state.certificateIssued ? 'complete' : (certUnlocked ? 'available' : 'locked')}">${state.certificateIssued ? '✓ Issued' : (certUnlocked ? 'Available' : 'Locked')}</div>
+      </div>
+      <div class="moc-title">GradeX Certificate</div>
+      <div class="moc-time">Unlocks after passing assessment</div>
+    </div>`;
+  grid.innerHTML = html;
+}
+
+/* =========================================================
+   QUIZ DATA — MODULES 1–5 + FINAL ASSESSMENT
+   ========================================================= */
+const QUIZZES = {
+  m1: [
+    { id:'m1q1', q:'Which Assessment Objective covers solving non-routine, multi-step problems in unfamiliar contexts?', options:[['a','AO1 — Use and apply standard techniques'],['b','AO2 — Reason, interpret and communicate'],['c','AO3 — Solve non-routine problems']], correct:'c', explain:'AO3 covers problem-solving in unfamiliar/non-routine contexts — roughly 30% of marks.' },
+    { id:'m1q2', q:'What grade is generally considered the "standard pass" in GCSE Maths?', options:[['a','Grade 3'],['b','Grade 4'],['c','Grade 5']], correct:'b', explain:'Grade 4 is the "standard pass" (old grade C equivalent). Grade 5 is the "strong pass".' },
+    { id:'m1q3', q:'A student writes the correct method but makes an arithmetic slip, getting the wrong final number. What can they still earn?', options:[['a','Zero marks — the answer must be correct'],['b','Method (M) marks for showing valid strategy'],['c','Only marks if they redo the question']], correct:'b', explain:'Method marks (M) are awarded for a correct strategy/approach even if the final number is wrong — this is why showing working matters so much.' },
+    { id:'m1q4', q:'Which topic is typically tested on the Non-Calculator paper rather than the Calculator papers?', options:[['a','Compound interest'],['b','Simplifying surds and exact fractions'],['c','Reading complex statistical graphs']], correct:'b', explain:'Paper 1 (Non-Calculator) focuses on mental arithmetic, exact fractions, and surds — skills that don\'t rely on a calculator.' }
+  ],
+  m2: [
+    { id:'m2q1', q:'In UK GCSE bearings questions, angles are measured:', options:[['a','Clockwise from North'],['b','Anticlockwise from East'],['c','Clockwise from East']], correct:'a', explain:'Bearings are always measured clockwise from North and written as 3 digits, e.g. 045°.' },
+    { id:'m2q2', q:'On a GCSE algebraic proof question, what commonly costs students the final mark even when their algebra is correct?', options:[['a','Using the wrong variable name'],['b','Missing a concluding statement (e.g. "...which is a multiple of 4")'],['c','Writing the proof too quickly']], correct:'b', explain:'GCSE proof requires correct algebra PLUS a conclusion sentence — this is an AO2 communication mark.' },
+    { id:'m2q3', q:'Compared to Indian coaching-centre teaching, GCSE pedagogy places much more emphasis on:', options:[['a','Speed-solving as many problems as possible'],['b','Explanation-driven, student-led reasoning'],['c','Memorising more advanced formulae']], correct:'b', explain:'GCSE values reasoning and communication (AO2) — slow, explanation-driven teaching beats fast procedural drilling.' },
+    { id:'m2q4', q:'Which GCSE topic area is most commonly under-taught by tutors from an Indian Maths background?', options:[['a','Quadratic equations'],['b','Transformations (rotation, reflection, enlargement, translation)'],['c','Basic fractions']], correct:'b', explain:'Transformations are a major GCSE topic largely absent from Indian curricula — a key gap to close before tutoring.' }
+  ],
+  m3: [
+    { id:'m3q1', q:'What is the correct order of the Gradual Release scaffolding model?', options:[['a','You Do → We Do → I Do'],['b','I Do → We Do → You Do (guided) → You Do (alone) → Transfer'],['c','Transfer → I Do → You Do']], correct:'b', explain:'The gradual release model moves from full tutor modelling to full student independence in stages.' },
+    { id:'m3q2', q:'A student says "I get the start but then I\'m lost." What\'s the best tutor response?', options:[['a','Restart the explanation from the very beginning'],['b','Identify the exact line where understanding breaks, and target that'],['c','Move to an easier question instead']], correct:'b', explain:'Pinpointing the exact breakdown point is far more efficient than a full re-teach.' },
+    { id:'m3q3', q:'Co-interior angles between parallel lines:', options:[['a','Are always equal'],['b','Sum to 180°'],['c','Sum to 90°']], correct:'b', explain:'Co-interior ("C shape") angles sum to 180°. Alternate ("Z shape") angles are equal — a common student mix-up.' },
+    { id:'m3q4', q:'Which of these best builds confidence in a low-performing student?', options:[['a','Showing them how quickly you can solve the problem'],['b','Starting the session with something they can already do'],['c','Telling them the topic is basic so they shouldn\'t worry']], correct:'b', explain:'Anchoring to existing competence builds confidence; speed-modelling and "this is easy" language undermine it.' }
+  ],
+  m4: [
+    { id:'m4q1', q:'During online tutoring, how often should you aim to create student interaction?', options:[['a','Every 10–15 minutes'],['b','Every 2–3 minutes'],['c','Only at the end of the lesson']], correct:'b', explain:'The 2–3 minute rule prevents passive watching and keeps the student cognitively engaged.' },
+    { id:'m4q2', q:'What should GCSE homework typically consist of?', options:[['a','Large generic worksheets for repetition'],['b','Targeted, exam-style past-paper questions'],['c','No homework — GCSE tutoring is session-only']], correct:'b', explain:'Focused past-paper questions build exam technique far more effectively than bulk repetition.' },
+    { id:'m4q3', q:'In the 60-minute lesson blueprint, what comes immediately after the warm-up?', options:[['a','Exam-style practice'],['b','Homework review &amp; error analysis'],['c','Setting next week\'s homework']], correct:'b', explain:'After the warm-up, reviewing homework with error diagnosis sets up the core teaching block.' },
+    { id:'m4q4', q:'Why should a tutor keep a topic mastery tracker?', options:[['a','It\'s required for online whiteboard software'],['b','To monitor progress over time and inform parent reporting'],['c','It replaces the need for exam-style practice']], correct:'b', explain:'Mastery trackers make progress visible across sessions and feed directly into parent reports.' }
+  ],
+  m5: [
+    { id:'m5q1', q:'What is the standard UK GCSE term for "parentheses"?', options:[['a','Brackets'],['b','Curves'],['c','Enclosures']], correct:'a', explain:'UK Maths vocabulary uses "brackets", not "parentheses".' },
+    { id:'m5q2', q:'What speaking pace is recommended for online GCSE tutoring?', options:[['a','As fast as natural conversation, ~160+ wpm'],['b','Slower than natural conversation, ~120–130 wpm'],['c','Pace doesn\'t matter as long as content is correct']], correct:'b', explain:'Slower pacing with pauses after key statements gives students time to process new ideas.' },
+    { id:'m5q3', q:'Which phrase should a tutor avoid saying to a struggling student?', options:[['a','"You\'re on the right track — what comes next?"'],['b','"This is easy / basic stuff"'],['c','"Let\'s park that and come back to it"']], correct:'b', explain:'Calling something "easy" or "basic" undermines confidence — avoid it entirely with struggling students.' },
+    { id:'m5q4', q:'What is the UK GCSE term typically used instead of "slope"?', options:[['a','Gradient'],['b','Incline'],['c','Rate']], correct:'a', explain:'Most UK exam boards use "gradient" rather than "slope".' }
+  ],
+  final: [
+    { id:'fq1', q:'Which Assessment Objective is primarily about reasoning, interpreting, and communicating mathematically?', options:[['a','AO1'],['b','AO2'],['c','AO3']], correct:'b', explain:'AO2 covers reasoning, interpreting and communicating — roughly 30% of marks.' },
+    { id:'fq2', q:'What grade is the "standard pass" in GCSE Maths?', options:[['a','Grade 4'],['b','Grade 5'],['c','Grade 6']], correct:'a', explain:'Grade 4 is the standard pass; Grade 5 is the "strong pass".' },
+    { id:'fq3', q:'GCSE bearings are measured:', options:[['a','Clockwise from North, 3-digit format'],['b','Anticlockwise from East'],['c','Clockwise from East, 2-digit format']], correct:'a', explain:'Always clockwise from North, written as 3 digits (e.g. 045°).' },
+    { id:'fq4', q:'A correct method shown with an arithmetic slip in the final answer typically earns:', options:[['a','Zero marks'],['b','Method (M) marks'],['c','Full marks regardless']], correct:'b', explain:'Method marks reward valid strategy even when the final number is wrong.' },
+    { id:'fq5', q:'Which topic is a common knowledge gap for tutors transitioning from Indian Maths coaching?', options:[['a','Transformations'],['b','Long division'],['c','Times tables']], correct:'a', explain:'Transformations (rotation, reflection, enlargement, translation) are largely absent from Indian curricula.' },
+    { id:'fq6', q:'The correct order of the Gradual Release model is:', options:[['a','You Do → I Do → We Do'],['b','I Do → We Do → You Do (guided) → You Do (alone) → Transfer'],['c','We Do → Transfer → I Do']], correct:'b', explain:'Gradual release moves step by step from full modelling to full independence.' },
+    { id:'fq7', q:'Co-interior angles between parallel lines:', options:[['a','Sum to 180°'],['b','Are always equal'],['c','Sum to 360°']], correct:'a', explain:'Co-interior angles sum to 180°; alternate angles are equal.' },
+    { id:'fq8', q:'In online tutoring, student interaction should be created at least every:', options:[['a','10 minutes'],['b','2–3 minutes'],['c','20 minutes']], correct:'b', explain:'The 2–3 minute rule keeps students actively engaged rather than passively watching.' },
+    { id:'fq9', q:'GCSE homework should mainly consist of:', options:[['a','Large generic worksheets'],['b','Targeted past-paper exam questions'],['c','No homework needed']], correct:'b', explain:'Focused, exam-style questions build technique far more effectively than bulk repetition.' },
+    { id:'fq10', q:'What is the UK GCSE term for "slope"?', options:[['a','Gradient'],['b','Incline'],['c','Steepness ratio']], correct:'a', explain:'UK exam boards use "gradient", not "slope".' }
+  ]
+};
+
+/* =========================================================
+   QUIZ RENDERING
+   ========================================================= */
+function renderQuiz(key) {
+  const container = document.getElementById('quiz-' + key);
+  if (!container) return;
+  const questions = QUIZZES[key];
+  let html = '';
+  questions.forEach((q, i) => {
+    html += `<div class="quiz-q" data-qid="${q.id}">
+      <p class="quiz-question">${i+1}. ${q.q}</p>
+      <div class="quiz-options">`;
+    q.options.forEach(opt => {
+      html += `<label data-val="${opt[0]}"><input type="radio" name="${q.id}" value="${opt[0]}"> ${opt[1]}</label>`;
+    });
+    html += `</div><div class="quiz-feedback"></div></div>`;
+  });
+  container.innerHTML = html;
+}
+
+function checkQuiz(moduleKey) {
+  const questions = QUIZZES[moduleKey];
+  let score = 0;
+  let allAnswered = true;
+
+  questions.forEach(q => {
+    const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+    const qBlock = document.querySelector(`[data-qid="${q.id}"]`);
+    const fb = qBlock.querySelector('.quiz-feedback');
+    qBlock.querySelectorAll('.quiz-options label').forEach(l => l.classList.remove('opt-correct','opt-incorrect'));
+
+    if (!selected) {
+      allAnswered = false;
+      fb.className = 'quiz-feedback unanswered';
+      fb.textContent = '⚠ Please select an answer.';
+      return;
+    }
+    const isCorrect = selected.value === q.correct;
+    if (isCorrect) score++;
+    const correctLabel = qBlock.querySelector(`label[data-val="${q.correct}"]`);
+    if (correctLabel) correctLabel.classList.add('opt-correct');
+    if (!isCorrect) {
+      const wrongLabel = qBlock.querySelector(`label[data-val="${selected.value}"]`);
+      if (wrongLabel) wrongLabel.classList.add('opt-incorrect');
+    }
+    fb.className = 'quiz-feedback ' + (isCorrect ? 'correct' : 'incorrect');
+    fb.innerHTML = (isCorrect ? '✓ Correct. ' : '✗ Not quite. ') + q.explain;
+  });
+
+  if (!allAnswered) {
+    return;
+  }
+
+  if (moduleKey === 'final') {
+    handleFinalAssessmentResult(score, questions.length);
+    return;
+  }
+
+  // Module quiz
+  state.modules[moduleKey].quizChecked = true;
+  state.modules[moduleKey].score = score;
+  state.modules[moduleKey].total = questions.length;
+  saveState();
+
+  const badge = document.getElementById(moduleKey + '-score-badge');
+  badge.textContent = `Score: ${score}/${questions.length}`;
+  badge.classList.remove('pass','fail');
+  badge.classList.add('show', score >= Math.ceil(questions.length * 0.75) ? 'pass' : 'fail');
+  document.getElementById(moduleKey + '-complete-btn').disabled = false;
+  hydrateUI();
+}
+
+/* =========================================================
+   FINAL ASSESSMENT
+   ========================================================= */
+function renderFinalQuiz() {
+  const container = document.getElementById('final-quiz-container');
+  if (state.finalAssessment.passed) {
+    container.innerHTML = `
+      <div class="callout callout-good">
+        <div class="callout-title">✅ Assessment Passed</div>
+        <p>You scored ${state.finalAssessment.score}/${state.finalAssessment.total} (${Math.round(state.finalAssessment.score/state.finalAssessment.total*100)}%). Your certificate is ready.</p>
+      </div>
+      <button class="btn btn-primary" onclick="navigateTo('certificate')">View My Certificate →</button>
+    `;
+    return;
+  }
+  let html = `<div id="quiz-final"></div>
+    <div class="quiz-actions">
+      <button class="btn btn-navy" onclick="checkQuiz('final')">Submit Final Assessment</button>
+      <span class="quiz-score" id="final-score-badge"></span>
+    </div>`;
+  container.innerHTML = html;
+  renderQuiz('final');
+}
+
+function handleFinalAssessmentResult(score, total) {
+  const pct = Math.round((score / total) * 100);
+  const passed = pct >= 70;
+  state.finalAssessment = { attempted: true, passed: passed, score: score, total: total };
+  saveState();
+
+  const badge = document.getElementById('final-score-badge');
+  badge.textContent = `Score: ${score}/${total} (${pct}%)`;
+  badge.classList.add('show', passed ? 'pass' : 'fail');
+
+  const container = document.getElementById('final-quiz-container');
+  let resultHtml = '';
+  if (passed) {
+    resultHtml = `<div class="callout callout-good" style="margin-top:18px;">
+      <div class="callout-title">🎉 You passed!</div>
+      <p>Score: ${score}/${total} (${pct}%) — your GradeX Tutor Certificate is now unlocked.</p>
+    </div>
+    <button class="btn btn-primary" onclick="navigateTo('certificate')">View My Certificate →</button>`;
+  } else {
+    resultHtml = `<div class="callout callout-bad" style="margin-top:18px;">
+      <div class="callout-title">Not quite — 70% needed to pass</div>
+      <p>Score: ${score}/${total} (${pct}%). Review the explanations above, revisit any weak modules, then retake when ready.</p>
+    </div>
+    <button class="btn btn-outline" onclick="renderFinalQuiz()">↺ Retake Assessment</button>`;
+  }
+  container.insertAdjacentHTML('beforeend', resultHtml);
+  hydrateUI();
+}
+
+/* =========================================================
+   CERTIFICATE
+   ========================================================= */
+function renderCertificate() {
+  const container = document.getElementById('certificate-container');
+  if (!isUnlocked('certificate')) {
+    container.innerHTML = `
+      <div class="cert-locked-card">
+        <div class="lock-emoji">🔒</div>
+        <h4 style="margin-top:0;">Certificate Locked</h4>
+        <p style="font-size:13px;color:var(--slate);margin-top:8px;">Complete all 5 modules and pass the Final Assessment (70%+) to unlock your GradeX Tutor Certificate.</p>
+      </div>`;
+    return;
+  }
+  if (!state.learnerName) {
+    container.innerHTML = `
+      <div class="cert-locked-card">
+        <div class="lock-emoji">✍️</div>
+        <h4 style="margin-top:0;">Add Your Name First</h4>
+        <p style="font-size:13px;color:var(--slate);margin-top:8px;">Go back to the Dashboard and enter your name so it can appear on your certificate.</p>
+        <button class="btn btn-primary" style="margin-top:16px;" onclick="navigateTo('dashboard')">Go to Dashboard</button>
+      </div>`;
+    return;
+  }
+
+  state.certificateIssued = true;
+  saveState();
+  hydrateUI();
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const pct = Math.round((state.finalAssessment.score / state.finalAssessment.total) * 100);
+  const certId = 'GX-' + today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + String(today.getDate()).padStart(2,'0') + '-' + Math.abs(hashCode(state.learnerName)).toString().slice(0,4);
+
+  container.innerHTML = `
+    <div class="cert-wrap">
+      <div class="certificate" id="certificate-printable">
+        <div class="cert-inner">
+          <div class="cert-logo-row">
+            <div class="gx-icon" style="background:var(--orange);">A<sup>+</sup></div>
+            <div style="font-family:'Manrope',sans-serif;font-weight:800;font-size:20px;color:var(--navy);">Grade<span style="color:var(--orange);">+</span>X</div>
+          </div>
+          <div class="cert-eyebrow">Certificate of Completion</div>
+          <div class="cert-heading">GCSE Maths Tutor Certification</div>
+          <div class="cert-presented">This certifies that</div>
+          <div class="cert-name">${escapeHtml(state.learnerName)}</div>
+          <p class="cert-desc">has successfully completed the <strong>GradeX GCSE Maths Tutor Certification Program</strong>, covering the GCSE ecosystem, pedagogy, online tutoring mastery, and UK communication standards — and passed the Final Assessment with a score of <strong>${pct}%</strong>.</p>
+          <div class="cert-seal">GX<br>★</div>
+          <div class="cert-meta-row">
+            <div class="cert-meta"><div class="cert-meta-label">Date Issued</div><div class="cert-meta-val">${dateStr}</div></div>
+            <div class="cert-meta"><div class="cert-meta-label">Assessment Score</div><div class="cert-meta-val">${state.finalAssessment.score}/${state.finalAssessment.total} (${pct}%)</div></div>
+            <div class="cert-meta"><div class="cert-meta-label">Certificate ID</div><div class="cert-meta-val">${certId}</div></div>
+          </div>
+          <p style="font-size:10px;color:var(--muted);margin-top:30px;">GradeX Tutor Academy · Powered by TridaPro · Measure. Improve. Succeed.</p>
+        </div>
+      </div>
+    </div>
+    <div class="cert-actions no-print">
+      <button class="btn btn-primary" onclick="window.print()">🖨 Print / Save as PDF</button>
+      <button class="btn btn-outline" onclick="navigateTo('dashboard')">← Back to Dashboard</button>
+    </div>
+  `;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+function hashCode(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash;
+}
+
+/* =========================================================
+   RENDER ALL MODULE QUIZZES ON LOAD
+   ========================================================= */
+function renderAllQuizzes() {
+  ['m1','m2','m3','m4','m5'].forEach(renderQuiz);
+}
+
+/* ---------------- INIT ---------------- */
+window.addEventListener('DOMContentLoaded', () => {
+  renderAllQuizzes();
+  loadState();
+});
+</script>
+
+</body>
+</html>
